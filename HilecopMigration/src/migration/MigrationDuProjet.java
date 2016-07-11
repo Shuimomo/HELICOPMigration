@@ -27,30 +27,25 @@ public class MigrationDuProjet {
 	 */
 	public void migrationHILECOP(ArrayList<File> liste_vhd, ArrayList<File> liste_hilecopcomponent) throws IOException{
 		for(int i=0;i<liste_hilecopcomponent.size();i++){
-			String path = locate + "\\"+liste_hilecopcomponent.get(i).getParentFile().getName();
-			File f1=new File(path);
+			String pathnew = locate + "\\"+liste_hilecopcomponent.get(i).getParentFile().getName();
+			File f1=new File(pathnew);
 			f1.mkdir();
-			String fichierpath = liste_hilecopcomponent.get(i).getAbsolutePath();
-			migrationComposant(fichierpath, path);
+			migrationComposant(pathnew, liste_hilecopcomponent.get(i));
 		}
 		for(int i=0;i<liste_vhd.size();i++){
-			String path = locate + "\\"+liste_vhd.get(i).getParentFile().getName();
+			String pathnew = locate + "\\"+liste_vhd.get(i).getParentFile().getName();
 			String name = liste_vhd.get(i).getName();
-			File f1=new File(path);
+			File f1=new File(pathnew);
 			f1.mkdir();
-			String fichierpath = liste_vhd.get(i).getAbsolutePath();
-			migrationVHD(fichierpath, path,name);
+			String pathancien = liste_vhd.get(i).getAbsolutePath();
+			migrationVHD(pathancien, pathnew,name);
 		}
 	}
 
-	private void migrationComposant(String path1, String path2) throws IOException{
-		AncienComposant ancien = new AncienComposant(path1);
-		String name = ancien.getRoot().getDesignFileName();
-
-		NouveauComposant nouveau = new NouveauComposant(path2, name);
-		MigrationDuComposant migtool = new MigrationDuComposant(nouveau,ancien);
+	private void migrationComposant(String pathnew, File fileancien) throws IOException{
+		MigrationDuComposant migtool = new MigrationDuComposant(pathnew,fileancien);
 		migtool.migeration();
-		nouveau.save();
+		migtool.save();
 	}
 
 	private void migrationVHD(String path1, String path2, String name) throws IOException{

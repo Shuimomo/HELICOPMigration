@@ -1,5 +1,7 @@
 package migration;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.eclipse.emf.common.util.EList;
@@ -28,11 +30,14 @@ public class MigrationDuComposant {
 	private NouveauComposant newprojet;
 	private HilecopRoot newroot;
 	private AncienComposant origiprojet;
+	private String originalfolder;
 
-	public MigrationDuComposant(NouveauComposant nouveau,AncienComposant ancien){
-		newprojet = nouveau;
-		newroot = nouveau.getRoot();
-		origiprojet = ancien;
+	public MigrationDuComposant(String pathnew, File fileancien) throws IOException{
+		originalfolder = fileancien.getParent();
+		origiprojet = new AncienComposant(fileancien.getAbsolutePath());
+		String name = origiprojet.getRoot().getDesignFileName();
+		newprojet = new NouveauComposant(pathnew, name);
+		newroot = newprojet.getRoot();
 	}
 
 	public void migeration(){
@@ -420,29 +425,65 @@ public class MigrationDuComposant {
 		root.ComponentInstance newinstance = RootFactory.eINSTANCE.createComponentInstance();
 		newinstance.setName(instance.getName());
 		newinstance.setInstanceOf(instance.getInstanceOf().getDescriptorName());
+		
+		/* find the compsant which this instance is instance of */
+		AncienComposant refdcomp = this.getComposantInstanceOf(instance.getInstanceOf().getName());
+		
+		EList<RefPlace> listerefplace = refdcomp.getRefPlaces();
+		EList<RefTransition> listereftransition = refdcomp.getRefTransitions();
+		
 		if(!instance.getPorts().isEmpty()){
 			for(int i=0;i<instance.getPorts().size();i++){
 				newinstance.getFields().add(convertPort(instance.getPorts().get(i)));
 			}
 		}
-		/*
-		if(!instance.getGenerics().isEmpty()){
-			for(int i=0;i<instance.getGenerics().size();i++){
-				newinstance.getFields().add(convertGeneric(instance.getGenerics().get(i)));
-			}
-		}
-		 */
+		
 		if(!instance.getRefPlaces().isEmpty()){
 			for(int i=0;i<instance.getRefPlaces().size();i++){
-				newinstance.getPNStructureObjects().add(convertRefPlace(instance.getRefPlaces().get(i)));
+				petriNet.RefPlace newrefplace = PetriNetFactory.eINSTANCE.createRefPlace();
+				newrefplace.setName(instance.getRefPlaces().get(i).getName());
+				setRefPlaceMode(newrefplace, instance.getRefPlaces().get(i));
+				
+				petriNet.Place place = PetriNetFactory.eINSTANCE.createPlace();
+				place.setName("Not found");
+				/* find this refplace in the composant */
+				for(RefPlace e :listerefplace){
+					if(e.getName().equals(newrefplace.getName())){
+						place.setName(e.getPlace().getName());
+					}
+				}
+				newrefplace.setPlace(place);
+				
+				newinstance.getPNStructureObjects().add(newrefplace);
 			}
 		}
+		
 		if(!instance.getRefTransitions().isEmpty()){
 			for(int i=0;i<instance.getRefTransitions().size();i++){
-				newinstance.getPNStructureObjects().add(convertRefTransition(instance.getRefTransitions().get(i)));
+				petriNet.RefTransition newreftransition = PetriNetFactory.eINSTANCE.createRefTransition();
+				newreftransition.setName(instance.getRefTransitions().get(i).getName());
+				setRefTransitionMode(newreftransition, instance.getRefTransitions().get(i));
+				
+				petriNet.Transition Transition = PetriNetFactory.eINSTANCE.createTransition();
+				Transition.setName("Not found");
+				for(RefTransition e :listereftransition){
+					if(e.getName().equals(newreftransition.getName())){
+						Transition.setName(e.getTransition().getName());
+					}
+				}
+				newreftransition.setTransition(Transition);
+				
+				newinstance.getPNStructureObjects().add(newreftransition);
 			}
 		}
 		return newinstance;
+	}
+	
+	private AncienComposant getComposantInstanceOf(String name){
+		String path = originalfolder+"\\"+name+".hilecopcomponent";
+		//File fileancien = new File(path);
+		AncienComposant o = new AncienComposant(path);
+		return o;
 	}
 
 
@@ -681,5 +722,9 @@ public class MigrationDuComposant {
 			}
 		}
 		return newfield;
+	}
+
+	public void save() throws IOException {
+		newprojet.save();
 	}
 }
