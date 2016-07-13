@@ -28,6 +28,7 @@ public class NouveauComposant {
 	private ResourceSet resourceSet;
 	private Resource newres;
 	private HilecopRoot newroot;
+	private String composantname;
 
 	/**
 	 * constructor; create un nouveau fichier root
@@ -44,14 +45,19 @@ public class NouveauComposant {
 		file.createNewFile();
 		URI newURI = URI.createFileURI(filename);
 		newres = resourceSet.createResource(newURI);
-		
+
 		newroot = RootFactory.eINSTANCE.createHilecopRoot(name);
+
+		composantname = name;
 	}
-	
+
 	public HilecopRoot getRoot(){
 		return newroot;
 	}
 
+	public String getName(){
+		return composantname;
+	}
 	public ArrayList<VHDLAction> getVHDLActions(){
 		EList<VHDLElement> listeVHDL = newroot.getComponent().getVHDLElements();
 		ArrayList<VHDLAction> listeAction = new ArrayList<VHDLAction>();
@@ -62,7 +68,7 @@ public class NouveauComposant {
 		}
 		return listeAction;
 	}
-	
+
 	public ArrayList<VHDLCondition> getVHDLConditions(){
 		EList<VHDLElement> listeVHDL = newroot.getComponent().getVHDLElements();
 		ArrayList<VHDLCondition> listeCondition = new ArrayList<VHDLCondition>();
@@ -73,7 +79,7 @@ public class NouveauComposant {
 		}
 		return listeCondition;
 	}
-	
+
 	public ArrayList<VHDLFunction> getVHDLFunctions(){
 		EList<VHDLElement> listeVHDL = newroot.getComponent().getVHDLElements();
 		ArrayList<VHDLFunction> listeFunction = new ArrayList<VHDLFunction>();
@@ -84,7 +90,7 @@ public class NouveauComposant {
 		}
 		return listeFunction;
 	}
-	
+
 	public ArrayList<VHDLTime> getVHDLTimes(){
 		EList<VHDLElement> listeVHDL = newroot.getComponent().getVHDLElements();
 		ArrayList<VHDLTime> listeTime = new ArrayList<VHDLTime>();
@@ -124,6 +130,23 @@ public class NouveauComposant {
 	public void save() throws IOException{
 		newres.getContents().add(newroot);
 		newres.save(null);
+	}
+
+	public void setInstanceContainer(ArrayList<String> listofinstance, String projetname){
+		for(String ic : listofinstance){
+			InstanceContainerName instancecontainer = RootFactory.eINSTANCE.createInstanceContainerName();
+			instancecontainer.setName(ic);
+			instancecontainer.setProjectName(projetname);
+			newroot.getComponent().getListOfInstances().add(instancecontainer);
+		}
+		newres.getContents().clear();
+		newres.getContents().add(newroot);
+		try {
+			newres.save(null);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
 

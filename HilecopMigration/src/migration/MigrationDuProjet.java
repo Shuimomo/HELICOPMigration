@@ -14,9 +14,13 @@ import java.util.ArrayList;
 public class MigrationDuProjet {
 
 	private String locate;
+	private ArrayList<EditorInstanceContainer> listeEIC;
+	private ArrayList<NouveauComposant> listecomp;
 
 	public MigrationDuProjet(String lo){
 		locate = lo;
+		listeEIC = new ArrayList<EditorInstanceContainer>();
+		listecomp = new ArrayList<NouveauComposant>();
 	}
 
 	/**
@@ -26,12 +30,43 @@ public class MigrationDuProjet {
 	 * @throws IOException
 	 */
 	public void migrationHILECOP(ArrayList<File> liste_vhd, ArrayList<File> liste_hilecopcomponent) throws IOException{
+		/* create an editor for each projet */
+		ArrayList<String> listeprojet = new ArrayList<String>();
+		Boolean exist = false;
 		for(int i=0;i<liste_hilecopcomponent.size();i++){
-			String pathnew = locate + "\\"+liste_hilecopcomponent.get(i).getParentFile().getName();
+			String projetname = liste_hilecopcomponent.get(i).getParentFile().getName();
+			for(String e : listeprojet){
+				if(e.equals(projetname)){
+					exist = true;
+				}
+			}
+			if(!exist){
+				listeprojet.add(projetname);
+			}
+		}
+		for(int i=0;i<listeprojet.size();i++){
+			String nameofprojet = listeprojet.get(i);
+			EditorInstanceContainer c = new EditorInstanceContainer(nameofprojet);
+			listeEIC.add(c);
+		}/*end*/
+
+		/* migration du composant(root) */
+		for(int i=0;i<liste_hilecopcomponent.size();i++){
+			String projetname = liste_hilecopcomponent.get(i).getParentFile().getName();
+			String pathnew = locate + "\\"+projetname;
 			File f1=new File(pathnew);
 			f1.mkdir();
-			migrationComposant(pathnew, liste_hilecopcomponent.get(i));
+			EditorInstanceContainer historyinstance = getEIC(projetname);
+			if(historyinstance!=null){
+				migrationComposant(pathnew, liste_hilecopcomponent.get(i),historyinstance);
+			}
+			//TODO else?
 		}
+
+		for(EditorInstanceContainer e : listeEIC){
+			e.setallInstanceContainer(listecomp);
+		}
+
 		for(int i=0;i<liste_vhd.size();i++){
 			String pathnew = locate + "\\"+liste_vhd.get(i).getParentFile().getName();
 			String name = liste_vhd.get(i).getName();
@@ -42,10 +77,25 @@ public class MigrationDuProjet {
 		}
 	}
 
-	private void migrationComposant(String pathnew, File fileancien) throws IOException{
-		MigrationDuComposant migtool = new MigrationDuComposant(pathnew,fileancien);
+	/**
+	 * find the editorInstanceContainer for this project(folder)
+	 * @param projetname
+	 * @return
+	 */
+	private EditorInstanceContainer getEIC(String projetname) {
+		for(EditorInstanceContainer e : listeEIC){
+			if(e.getProjetName().equals(projetname)){
+				return e;
+			}
+		}
+		return null;
+	}
+
+	private void migrationComposant(String pathnew, File fileancien, EditorInstanceContainer historyinstance) throws IOException{
+		MigrationDuComposant migtool = new MigrationDuComposant(pathnew,fileancien,historyinstance);
 		migtool.migeration();
 		migtool.save();
+		listecomp.add(migtool.getNewComp());
 	}
 
 	private void migrationVHD(String path1, String path2, String name) throws IOException{
@@ -82,7 +132,7 @@ public class MigrationDuProjet {
 			}
 		}
 	}
-/*
+	/*
 	private void migrationInterface(){
 		ResourceSet resourceSet = new ResourceSetImpl();
 		resourceSet.getPackageRegistry().put(root.RootPackage.eNS_URI,root.RootPackage.eINSTANCE);
@@ -96,5 +146,5 @@ public class MigrationDuProjet {
 
 	//	Diagram 
 	}
- */
+	 */
 }

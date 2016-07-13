@@ -27,17 +27,19 @@ import script.VHDLTime;
 
 public class MigrationDuComposant {
 
-	private NouveauComposant newprojet;
+	private NouveauComposant newcomposant;
 	private HilecopRoot newroot;
-	private AncienComposant origiprojet;
+	private AncienComposant originalcomposant;
 	private String originalfolder;
+	private EditorInstanceContainer historyinstance;
 
-	public MigrationDuComposant(String pathnew, File fileancien) throws IOException{
+	public MigrationDuComposant(String locatenew, File fileancien, EditorInstanceContainer EIC) throws IOException{
 		originalfolder = fileancien.getParent();
-		origiprojet = new AncienComposant(fileancien.getAbsolutePath());
-		String name = origiprojet.getRoot().getDesignFileName();
-		newprojet = new NouveauComposant(pathnew, name);
-		newroot = newprojet.getRoot();
+		originalcomposant = new AncienComposant(fileancien.getAbsolutePath());
+		String name = originalcomposant.getRoot().getDesignFileName();
+		newcomposant = new NouveauComposant(locatenew, name);
+		newroot = newcomposant.getRoot();
+		historyinstance = EIC;
 	}
 
 	public void migeration(){
@@ -54,7 +56,7 @@ public class MigrationDuComposant {
 
 
 	public void migrationField(){
-		EList<Port> listePort = origiprojet.getPorts();
+		EList<Port> listePort = originalcomposant.getPorts();
 		System.out.println("Number of Port :" + listePort.size());
 		for(int i=0;i<listePort.size();i++){
 			Port port = listePort.get(i);
@@ -62,7 +64,7 @@ public class MigrationDuComposant {
 			System.out.println("Port " + (i+1) +" is migrated");
 		}
 
-		EList<Signal> listeSignal = origiprojet.getSignals();
+		EList<Signal> listeSignal = originalcomposant.getSignals();
 		System.out.println("Number of Signal :" + listeSignal.size());
 		for(int i=0;i<listeSignal.size();i++){
 			Signal signal = listeSignal.get(i);
@@ -70,7 +72,7 @@ public class MigrationDuComposant {
 			System.out.println("Signal " + (i+1) +" is migrated");
 		}
 
-		EList<Generic> listeGeneric = origiprojet.getGenerics();
+		EList<Generic> listeGeneric = originalcomposant.getGenerics();
 		System.out.println("Number of Generic :" + listeGeneric.size());
 		for(int i=0;i<listeGeneric.size();i++){
 			Generic generic = listeGeneric.get(i);
@@ -78,7 +80,7 @@ public class MigrationDuComposant {
 			System.out.println("Generic " + (i+1) +" is migrated");
 		}
 
-		ArrayList<Constant> listeConstant = origiprojet.getConstants();
+		ArrayList<Constant> listeConstant = originalcomposant.getConstants();
 		System.out.println("Number of Constant :" + listeConstant.size());
 		for(int i=0;i<listeGeneric.size();i++){
 			Constant constant = listeConstant.get(i);
@@ -88,7 +90,7 @@ public class MigrationDuComposant {
 	}
 
 	public void migrationInstance(){
-		EList<ComponentInstance> listeInstance = origiprojet.getInstances();
+		EList<ComponentInstance> listeInstance = originalcomposant.getInstances();
 		System.out.println("Number of Instance : " + listeInstance.size());
 		for(int i=0;i<listeInstance.size();i++){
 			newroot.getComponent().getComponentInstances().add(convertInstance(listeInstance.get(i)));
@@ -97,25 +99,25 @@ public class MigrationDuComposant {
 	}
 
 	public void migrationVHDL(){
-		EList<PNAction> listeVHDLAction = origiprojet.getPNActions();
+		EList<PNAction> listeVHDLAction = originalcomposant.getPNActions();
 		System.out.println("Number of PNAction : "+listeVHDLAction.size());
 		for(int i=0;i<listeVHDLAction.size();i++){
 			newroot.getComponent().getVHDLElements().add(convertVHDLAction(listeVHDLAction.get(i)));
 		}
 
-		EList<PNFunction> listeVHDLFunction = origiprojet.getPNFunctions();
+		EList<PNFunction> listeVHDLFunction = originalcomposant.getPNFunctions();
 		System.out.println("Number of PNFunction : "+listeVHDLFunction.size());
 		for(int i=0;i<listeVHDLFunction.size();i++){
 			newroot.getComponent().getVHDLElements().add(convertVHDLFunction(listeVHDLFunction.get(i)));
 		}
 
-		EList<PNCondition> listeVHDLCondition = origiprojet.getPNConditions();
+		EList<PNCondition> listeVHDLCondition = originalcomposant.getPNConditions();
 		System.out.println("Number of PNCondition : "+listeVHDLCondition.size());
 		for(int i=0;i<listeVHDLCondition.size();i++){
 			newroot.getComponent().getVHDLElements().add(convertVHDLCondition(listeVHDLCondition.get(i)));
 		}
 
-		EList<PNTime> listeVHDLTime = origiprojet.getPNTimes();
+		EList<PNTime> listeVHDLTime = originalcomposant.getPNTimes();
 		System.out.println("Number of PNTime : "+listeVHDLTime.size());
 		for(int i=0;i<listeVHDLTime.size();i++){
 			newroot.getComponent().getVHDLElements().add(convertVHDLTime(listeVHDLTime.get(i)));
@@ -123,7 +125,7 @@ public class MigrationDuComposant {
 	}
 
 	public void migrationBasicNode(){
-		ArrayList<hilecopComponent.Place> listePlace = origiprojet.getPlaces();
+		ArrayList<hilecopComponent.Place> listePlace = originalcomposant.getPlaces();
 		System.out.println("Number of Place : " + listePlace.size());
 		for(int i=0;i<listePlace.size();i++){
 			hilecopComponent.Place place = listePlace.get(i);
@@ -131,7 +133,7 @@ public class MigrationDuComposant {
 			System.out.println("Place " + (i+1) +" is migrated");
 		}
 
-		ArrayList<Transition> listeTransition = origiprojet.getTransitions();
+		ArrayList<Transition> listeTransition = originalcomposant.getTransitions();
 		System.out.println("Number of Transition : " + listeTransition.size());
 		for(int i=0;i<listeTransition.size();i++){
 			Transition Transition = listeTransition.get(i);
@@ -141,25 +143,25 @@ public class MigrationDuComposant {
 	}
 
 	public void migrationRefNode(){
-		EList<RefPlace> listeRefPlace = origiprojet.getRefPlaces();
+		EList<RefPlace> listeRefPlace = originalcomposant.getRefPlaces();
 		System.out.println("Number of RefPlace :" + listeRefPlace.size());
 		for(int i=0;i<listeRefPlace.size();i++){
 			RefPlace refplace = listeRefPlace.get(i);
-			newroot.getComponent().getPNStructureObjects().add(convertRefPlace(refplace));
+			newroot.getComponent().getFields().add(convertRefPlace(refplace));
 			System.out.println("RefPlace " + (i+1) +" is migrated");
 		}
 
-		EList<RefTransition> listeRefTransition = origiprojet.getRefTransitions();
+		EList<RefTransition> listeRefTransition = originalcomposant.getRefTransitions();
 		System.out.println("Number of RefTransition :" + listeRefTransition.size());
 		for(int i=0;i<listeRefTransition.size();i++){
 			RefTransition refTransition = listeRefTransition.get(i);
-			newroot.getComponent().getPNStructureObjects().add(convertRefTransition(refTransition));
+			newroot.getComponent().getFields().add(convertRefTransition(refTransition));
 			System.out.println("RefTransition " + (i+1) +" is migrated");
 		}
 	}
 
 	public void migrationArc(){
-		ArrayList<BasicArc> listeBasicArc = origiprojet.getBasicArcs();
+		ArrayList<BasicArc> listeBasicArc = originalcomposant.getBasicArcs();
 		System.out.println("Number of BasicArc : " + listeBasicArc.size());
 		for(int i=0;i<listeBasicArc.size();i++){
 			BasicArc BasicArc = listeBasicArc.get(i);
@@ -167,7 +169,7 @@ public class MigrationDuComposant {
 			System.out.println("BasicArc " + (i+1) +" is migrated");
 		}
 
-		ArrayList<TestArc> listeTestArc = origiprojet.getTestArcs();
+		ArrayList<TestArc> listeTestArc = originalcomposant.getTestArcs();
 		System.out.println("Number of TestArc : " + listeTestArc.size());
 		for(int i=0;i<listeTestArc.size();i++){
 			TestArc TestArc = listeTestArc.get(i);
@@ -175,7 +177,7 @@ public class MigrationDuComposant {
 			System.out.println("TestArc " + (i+1) +" is migrated");
 		}
 
-		ArrayList<InhibitorArc> listeInhibitorArc = origiprojet.getInhibitorArcs();
+		ArrayList<InhibitorArc> listeInhibitorArc = originalcomposant.getInhibitorArcs();
 		System.out.println("Number of InhibitorArc : " + listeInhibitorArc.size());
 		for(int i=0;i<listeInhibitorArc.size();i++){
 			InhibitorArc InhibitorArc = listeInhibitorArc.get(i);
@@ -183,7 +185,7 @@ public class MigrationDuComposant {
 			System.out.println("InhibitorArc " + (i+1) +" is migrated");
 		}
 
-		ArrayList<FusionArc> listeFusionArc = origiprojet.getFusionArcs();
+		ArrayList<FusionArc> listeFusionArc = originalcomposant.getFusionArcs();
 		System.out.println("Number of FusionArc : " + listeFusionArc.size());
 		for(int i=0;i<listeFusionArc.size();i++){
 			FusionArc FusionArc = listeFusionArc.get(i);
@@ -193,7 +195,7 @@ public class MigrationDuComposant {
 	}
 
 	public void migrationConnection(){
-		EList<Connection> listeconnection = origiprojet.getConnections();
+		EList<Connection> listeconnection = originalcomposant.getConnections();
 		System.out.println("Number of Connection : "+listeconnection.size());
 		for(Connection c : listeconnection){
 			if(c instanceof hilecopComponent.SimpleConnection){
@@ -310,7 +312,7 @@ public class MigrationDuComposant {
 		newrefplace.setName(refplace.getName());
 		setRefPlaceMode(newrefplace, refplace);
 		//check refplace.place exist ou pas
-		ArrayList<petriNet.Place> listeplace = newprojet.getPlaces();
+		ArrayList<petriNet.Place> listeplace = newcomposant.getPlaces();
 		/**
 		 * TODO if null
 		 */
@@ -366,7 +368,7 @@ public class MigrationDuComposant {
 		newreftransition.setName(reftransition.getName());
 		setRefTransitionMode(newreftransition, reftransition);		
 		//check reftransition.transition exist ou pas
-		ArrayList<petriNet.Transition> listetransition = newprojet.getTransitions();
+		ArrayList<petriNet.Transition> listetransition = newcomposant.getTransitions();
 		/**
 		 * TODO ifnot
 		 */
@@ -427,8 +429,12 @@ public class MigrationDuComposant {
 		newinstance.setInstanceOf(instance.getInstanceOf().getDescriptorName());
 		
 		/* find the compsant which this instance is instance of */
-		AncienComposant refdcomp = this.getComposantInstanceOf(instance.getInstanceOf().getName());
+		String instanceof_name = instance.getInstanceOf().getName();
+		AncienComposant refdcomp = this.getComposantInstanceOf(instanceof_name);
+		/* And add "this composant - instanceof" to EditorInstanceContainer */
+		historyinstance.add(instanceof_name,newcomposant.getName());
 		
+		/* Begin translation of elements of instance */
 		EList<RefPlace> listerefplace = refdcomp.getRefPlaces();
 		EList<RefTransition> listereftransition = refdcomp.getRefTransitions();
 		
@@ -453,8 +459,8 @@ public class MigrationDuComposant {
 					}
 				}
 				newrefplace.setPlace(place);
-				
-				newinstance.getPNStructureObjects().add(newrefplace);
+				newinstance.getFields().add(newrefplace);
+				newinstance.getPNStructureObjects().add(place);
 			}
 		}
 		
@@ -464,16 +470,16 @@ public class MigrationDuComposant {
 				newreftransition.setName(instance.getRefTransitions().get(i).getName());
 				setRefTransitionMode(newreftransition, instance.getRefTransitions().get(i));
 				
-				petriNet.Transition Transition = PetriNetFactory.eINSTANCE.createTransition();
-				Transition.setName("Not found");
+				petriNet.Transition transition = PetriNetFactory.eINSTANCE.createTransition();
+				transition.setName("Not found");
 				for(RefTransition e :listereftransition){
 					if(e.getName().equals(newreftransition.getName())){
-						Transition.setName(e.getTransition().getName());
+						transition.setName(e.getTransition().getName());
 					}
 				}
-				newreftransition.setTransition(Transition);
-				
-				newinstance.getPNStructureObjects().add(newreftransition);
+				newreftransition.setTransition(transition);
+				newinstance.getFields().add(newreftransition);
+				newinstance.getPNStructureObjects().add(transition);
 			}
 		}
 		return newinstance;
@@ -544,7 +550,7 @@ public class MigrationDuComposant {
 		petriNet.Action newaction = PetriNetFactory.eINSTANCE.createAction();
 		newaction.setName(action.getName());
 		String VHDLActionName = action.getAction().getName();
-		ArrayList<VHDLAction> listeAction = newprojet.getVHDLActions();
+		ArrayList<VHDLAction> listeAction = newcomposant.getVHDLActions();
 		for(int i=0;i<listeAction.size();i++){
 			if(listeAction.get(i).getName().equals(VHDLActionName)){
 				newaction.setScript_action(listeAction.get(i));
@@ -557,7 +563,7 @@ public class MigrationDuComposant {
 		petriNet.Function newFunction = PetriNetFactory.eINSTANCE.createFunction();
 		newFunction.setName(Function.getName());
 		String VHDLFunctionName = Function.getFunction().getName();
-		ArrayList<VHDLFunction> listeFunction = newprojet.getVHDLFunctions();
+		ArrayList<VHDLFunction> listeFunction = newcomposant.getVHDLFunctions();
 		for(int i=0;i<listeFunction.size();i++){
 			if(listeFunction.get(i).getName().equals(VHDLFunctionName)){
 				newFunction.setScript_function(listeFunction.get(i));
@@ -571,7 +577,7 @@ public class MigrationDuComposant {
 		newcondition.setName(condition.getName());
 		setOperator(newcondition,condition);
 		String VHDLConditionName = condition.getCondition().getName();
-		ArrayList<VHDLCondition> listeCondition = newprojet.getVHDLConditions();
+		ArrayList<VHDLCondition> listeCondition = newcomposant.getVHDLConditions();
 		for(int i=0;i<listeCondition.size();i++){
 			if(listeCondition.get(i).getName().equals(VHDLConditionName)){
 				newcondition.setScript_condition(listeCondition.get(i));
@@ -619,8 +625,8 @@ public class MigrationDuComposant {
 		String name = node.getName();
 		Boolean notfind = true;
 		Node newnode = null;
-		ArrayList<petriNet.Place> listePlace = newprojet.getPlaces();
-		ArrayList<petriNet.Transition> listeTransition = newprojet.getTransitions();
+		ArrayList<petriNet.Place> listePlace = newcomposant.getPlaces();
+		ArrayList<petriNet.Transition> listeTransition = newcomposant.getTransitions();
 		EList<root.ComponentInstance> listeinstancenew = newroot.getComponent().getComponentInstances();
 
 		if(node.eContainer() instanceof ComponentInstance){
@@ -724,7 +730,11 @@ public class MigrationDuComposant {
 		return newfield;
 	}
 
+	public NouveauComposant getNewComp(){
+		return newcomposant;
+	}
+	
 	public void save() throws IOException {
-		newprojet.save();
+		newcomposant.save();
 	}
 }
