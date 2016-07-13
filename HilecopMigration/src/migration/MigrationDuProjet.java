@@ -12,7 +12,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class MigrationDuProjet {
-
+	public static ArrayList<String> errors;
 	private String locate;
 	private ArrayList<EditorInstanceContainer> listeEIC;
 	private ArrayList<NouveauComposant> listecomp;
@@ -21,6 +21,7 @@ public class MigrationDuProjet {
 		locate = lo;
 		listeEIC = new ArrayList<EditorInstanceContainer>();
 		listecomp = new ArrayList<NouveauComposant>();
+		errors = new ArrayList<String>();
 	}
 
 	/**
@@ -75,6 +76,8 @@ public class MigrationDuProjet {
 			String pathancien = liste_vhd.get(i).getAbsolutePath();
 			migrationVHD(pathancien, pathnew,name);
 		}
+		
+		System.out.println(errors);
 	}
 
 	/**

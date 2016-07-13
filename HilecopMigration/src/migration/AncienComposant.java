@@ -17,6 +17,7 @@ import hilecopComponent.BehaviourField;
 import hilecopComponent.ComponentInstance;
 import hilecopComponent.Connection;
 import hilecopComponent.Constant;
+import hilecopComponent.Field;
 import hilecopComponent.FusionArc;
 import hilecopComponent.Generic;
 import hilecopComponent.HilecopComponentDesignFile;
@@ -98,16 +99,21 @@ public class AncienComposant {
 	public EList<Port> getPorts(){
 		return designfile.getHilecopComponent().getPorts();
 	}
-	public EList<Signal> getSignals(){
-		return designfile.getHilecopComponent().getSignals();
+	public ArrayList<Signal> getSignals(){
+		ArrayList<Signal> listeSignal = new ArrayList<Signal>();
+		for(Field f : designfile.getHilecopComponent().getComponentBehaviour().getPrivateFields()){
+			if(f instanceof Signal){
+				listeSignal.add((Signal) f);
+			}
+		}
+		return listeSignal;
 	}
 	public EList<Generic> getGenerics(){
 		return designfile.getHilecopComponent().getGenerics();
 	}
 	public ArrayList<Constant> getConstants(){
-		EList<BehaviourField> listeField = designfile.getHilecopComponent().getComponentBehaviour().getPrivateFields();
 		ArrayList<Constant> listeConstant = new ArrayList<Constant>();
-		for(BehaviourField e : listeField){
+		for(BehaviourField e : designfile.getHilecopComponent().getComponentBehaviour().getPrivateFields()){
 			if(e instanceof Constant){
 				listeConstant.add((Constant) e);
 			}
