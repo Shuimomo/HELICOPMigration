@@ -576,10 +576,10 @@ public class MigrationDuComposant {
 	}
 
 	private void setOperator(petriNet.Condition newcondition, Condition condition){
-		if(condition.getOperator().getValue()==0){
+		if(condition.getOperator().equals(Operator.ID)){
 			newcondition.setOperator(petriNet.Operator.ID);
 		}
-		if(condition.getOperator().getValue()==1){
+		if(condition.getOperator().equals(Operator.NOT)){
 			newcondition.setOperator(petriNet.Operator.NOT);
 		}
 	}
@@ -674,8 +674,8 @@ public class MigrationDuComposant {
 				/* trouve instance */
 				if(listeinstancenew.get(i).getName().equals(instance.getName())){
 					HilecopComponent instancenew = listeinstancenew.get(i);
-					EList<petriNet.PNEntity> pn = instancenew.getPNStructureObjects();
-					for(PNEntity e : pn){
+					EList<Field> pn = instancenew.getFields();
+					for(Field e : pn){
 						if(e instanceof petriNet.RefPlace){
 							petriNet.RefPlace refplace =(petriNet.RefPlace) e;
 							if(refplace.getName().equals(name)){
