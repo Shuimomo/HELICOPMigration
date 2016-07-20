@@ -3,11 +3,11 @@ package migration;
 
 import java.util.ArrayList;
 
-public class ListOfInstanceContainer {
+public class ListInstanceContainer {
 	private String compname;
 	private ArrayList<String> listofinstance;
 
-	public ListOfInstanceContainer(String instanceofcomp) {
+	public ListInstanceContainer(String instanceofcomp) {
 		compname = instanceofcomp;
 		listofinstance = new ArrayList<String>();
 	}
