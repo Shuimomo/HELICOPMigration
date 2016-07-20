@@ -324,10 +324,10 @@ public class MigrationDuComposant {
 		newplace.setMarking(Integer.parseInt(place.getMarkupExpression()));
 		//add actions
 		EList<PNEntityInterpretation> listeInterpretation = place.getInterpretation();
-		for(int i=0;i<listeInterpretation.size();i++){
-			if(listeInterpretation.get(i).getClass().equals("class hilecopComponent.impl.ActionImpl"))
+		for(PNEntityInterpretation e : listeInterpretation){
+			if(e instanceof Action)
 			{
-				Action action =  (Action) listeInterpretation.get(i);
+				Action action =  (Action)e;
 				setAction(newplace,action);
 			}
 		}
