@@ -290,10 +290,6 @@ public class MigrationDuComposant {
 		}
 	}
 
-	/**
-	 * @param pnaction
-	 * @return
-	 */
 	private VHDLAction convertVHDLAction(PNAction pnaction){
 		VHDLAction vhdlAction = ScriptFactory.eINSTANCE.createVHDLAction();
 		setVHDLscript(vhdlAction,pnaction);
@@ -629,8 +625,14 @@ public class MigrationDuComposant {
 		newtime.setTmin(time.getTmin());
 		newtime.setTmax(time.getTmax());
 		newtime.setDescription(time.getDescription());
-		if(!time.getDynamicTime().getTimes().isEmpty()){
-			newtime.setScript_time(convertVHDLTime(time.getDynamicTime()));
+		if(time.getDynamicTime()!=null){
+			String VHDLTimeName = time.getDynamicTime().getName();
+			ArrayList<VHDLTime> listeTime = newcomposant.getVHDLTimes();
+			for(int i=0;i<listeTime.size();i++){
+				if(listeTime.get(i).getName().equals(VHDLTimeName)){
+					newtime.setScript_time(listeTime.get(i));
+				}
+			}
 		}
 		newtransition.setTime(newtime);
 	}
