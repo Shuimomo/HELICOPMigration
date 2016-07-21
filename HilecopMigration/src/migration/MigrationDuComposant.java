@@ -13,7 +13,6 @@ import field.SimpleConnection;
 import hilecopComponent.*;
 import hilecopComponent.Connection;
 import petriNet.Node;
-import petriNet.PNEntity;
 import petriNet.PetriNetFactory;
 import root.HilecopComponent;
 import root.HilecopRoot;
@@ -40,6 +39,7 @@ public class MigrationDuComposant {
 		newcomposant = new NouveauComposant(locatenew, name);
 		newroot = newcomposant.getRoot();
 		historyinstance = EIC;
+		MigrationDuProjet.errors.add(newcomposant.getName()+"\n");
 	}
 
 	public void migeration(){
@@ -147,7 +147,10 @@ public class MigrationDuComposant {
 		System.out.println("Number of RefPlace :" + listeRefPlace.size());
 		for(int i=0;i<listeRefPlace.size();i++){
 			RefPlace refplace = listeRefPlace.get(i);
-			newroot.getComponent().getFields().add(convertRefPlace(refplace));
+			petriNet.RefPlace newrefplace = convertRefPlace(refplace);
+			if(newrefplace != null){
+				newroot.getComponent().getFields().add(newrefplace);
+			}
 			System.out.println("RefPlace " + (i+1) +" is migrated");
 		}
 
@@ -155,7 +158,10 @@ public class MigrationDuComposant {
 		System.out.println("Number of RefTransition :" + listeRefTransition.size());
 		for(int i=0;i<listeRefTransition.size();i++){
 			RefTransition refTransition = listeRefTransition.get(i);
-			newroot.getComponent().getFields().add(convertRefTransition(refTransition));
+			petriNet.RefTransition newreftransition = convertRefTransition(refTransition);
+			if(newreftransition != null){
+				newroot.getComponent().getFields().add(newreftransition);
+			}
 			System.out.println("RefTransition " + (i+1) +" is migrated");
 		}
 	}
@@ -347,16 +353,19 @@ public class MigrationDuComposant {
 				}
 			}
 			if(notfind){
-				MigrationDuProjet.errors.add("Error : Can't find Place "+ placename+" for refPlace "+newrefplace.getName());
+				MigrationDuProjet.errors.add("Error : Can't find Place "+ placename+" for refPlace "+newrefplace.getName()+"\n");
 			}
+			return newrefplace;
 		}
-		return newrefplace;
+		else{
+			MigrationDuProjet.errors.add("DELETE Warning : RefPlace "+ refplace.getFieldName() +" has no place\n");
+			return null;
+		}
 	}
 
 	private petriNet.Transition convertTransition(Transition transition){
 		petriNet.Transition newtransition = PetriNetFactory.eINSTANCE.createTransition();
 		newtransition.setName(transition.getName());
-		int nbtime = 0;
 		EList<PNEntityInterpretation> listeInterpretation = transition.getInterpretation();
 		for(PNEntityInterpretation e : listeInterpretation){
 			if(e instanceof Condition)
@@ -369,15 +378,18 @@ public class MigrationDuComposant {
 				Function function =  (Function)e;
 				setFunction(newtransition,function);
 			}
-			if((e instanceof Time)&&nbtime<2)
+		}
+		int nbtime = 0;
+		for(PNEntityTimeBehaviour pntb : transition.getTemporalBehaviour()){
+			if((pntb instanceof Time)&&nbtime<2)
 			{
 				nbtime = nbtime+1;
 				if(nbtime==1){
-					Time time =  (Time)e;
+					Time time =  (Time)pntb;
 					setTime(newtransition,time);
 				}
 				else{
-					MigrationDuProjet.errors.add("Warning : More than one time for transition " + transition.getName());
+					MigrationDuProjet.errors.add("Warning : Dan original composant transition " + transition.getName()+" has more than one Time\n");
 				}
 			}
 		}
@@ -390,9 +402,6 @@ public class MigrationDuComposant {
 		setRefTransitionMode(newreftransition, reftransition);		
 		//check reftransition.transition exist ou pas
 		ArrayList<petriNet.Transition> listetransition = newcomposant.getTransitions();
-		/**
-		 * TODO ifnot
-		 */
 		if(reftransition.getTransition()!=null){
 			String transitionname = reftransition.getTransition().getName();
 			Boolean notfind = true;
@@ -403,10 +412,14 @@ public class MigrationDuComposant {
 				}
 			}
 			if(notfind){
-				MigrationDuProjet.errors.add("Error : Can't find transition "+ transitionname +" for refTransition "+newreftransition.getName());
+				MigrationDuProjet.errors.add("Error : Can't find transition "+ transitionname +" for refTransition "+newreftransition.getName()+"\n");
 			}
+			return newreftransition;
 		}
-		return newreftransition;
+		else{
+			MigrationDuProjet.errors.add("DELETE Warning : RefTransition "+ reftransition.getFieldName() +" has no transition\n");
+			return null;
+		}
 	}
 
 	private petriNet.BasicArc convertBasicArc(BasicArc barc){
@@ -448,7 +461,6 @@ public class MigrationDuComposant {
 	private petriNet.FusionArc convertFusionArc(FusionArc farc){
 		petriNet.FusionArc newFarc = PetriNetFactory.eINSTANCE.createFusionArc();
 		newFarc.setName(farc.getName());
-		setNode(newFarc,farc);
 		if(setNode(newFarc,farc)){
 			return newFarc;
 		}
@@ -650,13 +662,19 @@ public class MigrationDuComposant {
 	private Boolean setNode(petriNet.Arc newArc, Arc arc){
 		hilecopComponent.Node nodeSource = arc.getSourceNode();
 		hilecopComponent.Node nodeTarget = arc.getTargetNode();
-		if((findNode(nodeSource)!=null)&&(findNode(nodeTarget)!=null)){
-			newArc.setSourceNode(findNode(nodeSource));
-			newArc.setTargetNode(findNode(nodeTarget));
-			return true;
+		if(nodeSource != null && nodeTarget != null){
+			if((findNode(nodeSource)!=null)&&(findNode(nodeTarget)!=null)){
+				newArc.setSourceNode(findNode(nodeSource));
+				newArc.setTargetNode(findNode(nodeTarget));
+				return true;
+			}
+			else{
+				MigrationDuProjet.errors.add("Error : Can not find Node for arc "+arc.getName()+"\n");
+				return false;
+			}
 		}
 		else{
-			MigrationDuProjet.errors.add("Error : Can not find Node for arc "+arc.getName());
+			MigrationDuProjet.errors.add("DELETE Warning : Arc "+arc.getName()+" has a null node\n");
 			return false;
 		}
 	}
@@ -726,12 +744,12 @@ public class MigrationDuComposant {
 				return true;
 			}
 			else{
-				MigrationDuProjet.errors.add("Error : Can not find Field for connection " + connection.getId());
+				MigrationDuProjet.errors.add("Error : Can not find Field for connection " + connection.getId()+"\n");
 				return false;
 			}
 		}
 		else{
-			MigrationDuProjet.errors.add("Error : Connection " + connection.getId() + " has a null field");
+			MigrationDuProjet.errors.add("DELETE Warning : Connection " + connection.getId() + " has a null field\n");
 			return false;
 		}
 	}
