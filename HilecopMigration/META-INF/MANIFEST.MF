@@ -6,5 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.emf.ecore;bundle-version="2.11.2",
  org.eclipse.emf.ecore.xmi;bundle-version="2.11.1",
- fr.demar.hilecop.component;bundle-version="1.0.0",
- fr.demar.hilecopNEW.component;bundle-version="0.1.0"
+ fr.demar.hilecop.componentBehavior.diagram;bundle-version="1.0.0",
+ org.eclipse.gmf.runtime.diagram.core;bundle-version="1.7.0",
+ fr.demar.hilecopOLD.component;bundle-version="1.0.0",
+ fr.demar.hilecop.componentInterface.diagram;bundle-version="1.0.0"
+Export-Package: interfacegraphique
