@@ -1,8 +1,12 @@
-/**un par composant*/
 package migration;
 
 import java.util.ArrayList;
 
+/**
+ * un par composant;
+ * editor
+ * @author shui
+ */
 public class ListInstanceContainer {
 	private String compname;
 	private ArrayList<String> listofinstance;

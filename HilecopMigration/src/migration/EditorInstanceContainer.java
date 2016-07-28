@@ -1,10 +1,11 @@
-/**
- * un par projet
- */
 package migration;
 
 import java.util.ArrayList;
 
+/**
+ * un par projet. contient plusieurs ListInstanceContainer
+ * @author shui
+ */
 public class EditorInstanceContainer {
 	private String projet;
 	private ArrayList<ListInstanceContainer> history;

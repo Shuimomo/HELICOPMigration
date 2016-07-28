@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import root.HilecopRoot;
+
 public class MigrationDuProjet {
 	public static ArrayList<String> errors;
 	private String locate;
@@ -31,7 +33,7 @@ public class MigrationDuProjet {
 	 * @throws IOException
 	 */
 	public void migrationHILECOP(ArrayList<File> liste_vhd, ArrayList<File> liste_hilecopcomponent) throws IOException{
-		/* create an editor for each projet */
+		/* creer an editor for each projet */
 		ArrayList<String> listeprojet = new ArrayList<String>();
 		Boolean exist = false;
 		for(int i=0;i<liste_hilecopcomponent.size();i++){
@@ -51,23 +53,25 @@ public class MigrationDuProjet {
 			listeEIC.add(c);
 		}/*end*/
 
-		/* migration du composant(root) */
 		for(int i=0;i<liste_hilecopcomponent.size();i++){
+			/* migrer le composant(root) */
 			String projetname = liste_hilecopcomponent.get(i).getParentFile().getName();
 			String pathnew = locate + "\\"+projetname;
 			File f1=new File(pathnew);
 			f1.mkdir();
 			EditorInstanceContainer historyinstance = getEIC(projetname);
 			if(historyinstance!=null){
-				migrationComposant(pathnew, liste_hilecopcomponent.get(i),historyinstance);
+				NouveauComposant newcomp = migrationComposant(pathnew, liste_hilecopcomponent.get(i),historyinstance);
+				gererdiagram(pathnew, newcomp.getName(),newcomp.getRoot());
 			}
-			//TODO else?
 		}
-
+		
+		/* gerer InstanceContainer pour tous */
 		for(EditorInstanceContainer e : listeEIC){
 			e.setallInstanceContainer(listecomp);
 		}
-
+		
+		/* migrer la fichier vhd */
 		for(int i=0;i<liste_vhd.size();i++){
 			String pathnew = locate + "\\"+liste_vhd.get(i).getParentFile().getName();
 			String name = liste_vhd.get(i).getName();
@@ -94,13 +98,40 @@ public class MigrationDuProjet {
 		return null;
 	}
 
-	private void migrationComposant(String pathnew, File fileancien, EditorInstanceContainer historyinstance) throws IOException{
+	/**
+	 * migrate .root by calling MigrationDuComposant
+	 * @param pathnew
+	 * @param fileancien
+	 * @param historyinstance
+	 * @return
+	 * @throws IOException
+	 */
+	private NouveauComposant migrationComposant(String pathnew, File fileancien, EditorInstanceContainer historyinstance) throws IOException{
 		MigrationDuComposant migtool = new MigrationDuComposant(pathnew,fileancien,historyinstance);
 		migtool.migeration();
 		migtool.save();
 		listecomp.add(migtool.getNewComp());
+		return migtool.getNewComp();
 	}
 
+	/**
+	 * migrate diagrams by calling GererDiagram
+	 * @param name
+	 * @param newRoot
+	 */
+	private void gererdiagram(String path, String name, HilecopRoot newRoot){
+		GererDiagram newdiag = new GererDiagram(path, name, newRoot);
+		newdiag.createGMFDiagram();
+		newdiag.createGMFDiagramBehavior();		
+	}
+	
+	/**
+	 * migrate file vhd
+	 * @param path1
+	 * @param path2
+	 * @param name
+	 * @throws IOException
+	 */
 	private void migrationVHD(String path1, String path2, String name) throws IOException{
 		@SuppressWarnings("resource")
 		InputStream is = new FileInputStream (path1);
@@ -114,7 +145,6 @@ public class MigrationDuProjet {
 		try{
 			os=new FileOutputStream(file);
 			byte buffer[]=new byte[4*1024];
-
 
 			int len = 0;
 			while((len = is.read(buffer)) != -1){ 
@@ -135,19 +165,4 @@ public class MigrationDuProjet {
 			}
 		}
 	}
-	/*
-	private void migrationInterface(){
-		ResourceSet resourceSet = new ResourceSetImpl();
-		resourceSet.getPackageRegistry().put(root.RootPackage.eNS_URI,root.RootPackage.eINSTANCE);
-		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("root",new XMIResourceFactoryImpl());
-		String name = "0";
-		String filename = path2 + "\\" + name + ".script_vhd";
-		File file = new File(filename);
-		file.createNewFile();
-		URI newURI = URI.createFileURI(filename);
-		Resource newres = resourceSet.createResource(newURI);
-
-	//	Diagram 
-	}
-	 */
 }

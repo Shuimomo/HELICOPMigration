@@ -1,6 +1,3 @@
-/**
- * @author shui
- */
 package migration;
 
 import java.util.ArrayList;
@@ -36,6 +33,10 @@ import hilecopComponent.Signal;
 import hilecopComponent.TestArc;
 import hilecopComponent.Transition;
 
+/**
+ * include : all the 'get' of component of old version
+ * @author shui
+ */
 public class AncienComposant {
 	private HilecopComponentDesignFile designfile;
 	private ArrayList<Place> listePlace;
@@ -46,6 +47,10 @@ public class AncienComposant {
 	private ArrayList<FusionArc> listeFusionArc;
 	private PetriNetComponentBehaviour pn;
 	
+	/**
+	 * constructor
+	 * @param path
+	 */
 	public AncienComposant(String path){
 		ResourceSet ancienResourceSet = new ResourceSetImpl();
 		ancienResourceSet.getPackageRegistry().put(hilecopComponent.HilecopComponentPackage.eNS_URI,hilecopComponent.HilecopComponentPackage.eINSTANCE);

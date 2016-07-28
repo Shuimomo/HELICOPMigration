@@ -13,6 +13,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.gmf.runtime.diagram.core.services.ViewService;
+import org.eclipse.gmf.runtime.notation.Diagram;
 
 import petriNet.PNEntity;
 import petriNet.Place;
@@ -49,6 +51,7 @@ public class NouveauComposant {
 		newroot = RootFactory.eINSTANCE.createHilecopRoot(name);
 
 		composantname = name;
+
 	}
 
 	public HilecopRoot getRoot(){
@@ -124,7 +127,7 @@ public class NouveauComposant {
 	}
 
 	/**
-	 *  sauvegarder le fichier
+	 * save newcomp in file
 	 * @throws IOException 
 	 */
 	public void save() throws IOException{
@@ -132,6 +135,11 @@ public class NouveauComposant {
 		newres.save(null);
 	}
 
+	/**
+	 * set list of InstanceContainerName 
+	 * @param listofinstance
+	 * @param projetname
+	 */
 	public void setInstanceContainer(ArrayList<String> listofinstance, String projetname){
 		for(String ic : listofinstance){
 			InstanceContainerName instancecontainer = RootFactory.eINSTANCE.createInstanceContainerName();
@@ -144,7 +152,6 @@ public class NouveauComposant {
 		try {
 			newres.save(null);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
