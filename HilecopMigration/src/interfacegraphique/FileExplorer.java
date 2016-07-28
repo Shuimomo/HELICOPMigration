@@ -77,6 +77,9 @@ public class FileExplorer{
 	public ArrayList<File> getVhd(){
 		return liste_vhd;
 	}
+	public ArrayList<File> getListeFichiers(){
+		return liste_fichiers;
+	}
 
 	private boolean test_projet_hilecop(File file) {
 		BufferedReader reader;

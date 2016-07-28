@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -26,7 +27,10 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
+import hilecopComponent.HilecopComponentDesignFile;
 import migration.MigrationDuProjet;
+import root.HilecopRoot;
+import test.Test;
 
 
 @SuppressWarnings("serial")
@@ -148,7 +152,6 @@ public class Interface extends JFrame implements ActionListener {
 	/***Actions of buttons b1 and b2***/
 	public void actionPerformed(ActionEvent e){
 		
-		
 
 		int input = 0;
 		
@@ -211,9 +214,10 @@ public class Interface extends JFrame implements ActionListener {
 					JScrollPane scroll=new JScrollPane(jt,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 					scroll.setBounds(150, 252, 400, 300);
 					
-frame.getContentPane().add(scroll);
+					frame.getContentPane().add(scroll);
 					
-					listeFichier=f.parcours(backToSlash(text1.getText()));
+//					listeFichier=f.parcours(backToSlash(text1.getText()));
+					listeFichier = f.getListeFichiers();
 					AddTextJpanel(jt, listeFichier);
 					
 					frame.setVisible(true);
@@ -255,7 +259,33 @@ frame.getContentPane().add(scroll);
 			ArrayList<File> liste_hilecopcomponent = f.getHilecopComponent();
 			MigrationDuProjet migprojet = new MigrationDuProjet(locate);
 			migprojet.migrationHILECOP(liste_vhd,liste_hilecopcomponent);
-			JOptionPane.showMessageDialog(null,"migration is done!");
+			JOptionPane.showMessageDialog(null,"Migration is done!");
+			
+		Test test = new Test();
+			String project_name ="";
+			for(File fic : f.getListeFichiers()) {
+				if(fic.isDirectory()) {
+					project_name = fic.getName();
+				}
+				else if (fic.isFile()) {
+					HilecopComponentDesignFile designFile = test.read(fic.getAbsolutePath());
+					System.out.println(fic.getName() + " from project : "+project_name);
+					File fic_root = new File(locate+"\\"+project_name+"\\"+fic.getName().replaceFirst(".hilecopcomponent", ".root"));
+					if(fic_root.exists()) {
+						System.out.println("Test du fichier : "+fic_root.getName());
+						HilecopRoot root = test.open(fic_root.getAbsolutePath());
+						test.TestField(root, designFile);
+						test.TestVHDLElement(root, designFile);
+						test.TestPNStructure(root, designFile);
+						test.TestInstance(root, designFile);
+						test.TestConnection(root, designFile);
+						test.ErrorOutput(test.getErreurList(),locate);
+					}
+					
+				}
+			}
+			
+			JOptionPane.showMessageDialog(null,"Validation is done!");
 		}
 	}
 
