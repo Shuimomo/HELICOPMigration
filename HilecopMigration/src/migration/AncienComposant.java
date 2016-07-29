@@ -46,7 +46,7 @@ public class AncienComposant {
 	private ArrayList<InhibitorArc> listeInhibitorArc;
 	private ArrayList<FusionArc> listeFusionArc;
 	private PetriNetComponentBehaviour pn;
-	
+
 	/**
 	 * constructor
 	 * @param path
@@ -65,7 +65,7 @@ public class AncienComposant {
 		}
 
 		pn = (PetriNetComponentBehaviour) designfile.getHilecopComponent().getComponentBehaviour();
-		
+
 		EList<PNEntity> listePNEntity = pn.getPNStructureObjects();
 		listePlace = new ArrayList<Place>();
 		listeTransition = new ArrayList<Transition>();
@@ -73,7 +73,7 @@ public class AncienComposant {
 		listeTestArc =new ArrayList<TestArc>();
 		listeInhibitorArc = new ArrayList<InhibitorArc>();
 		listeFusionArc = new ArrayList<FusionArc>();
-		
+
 		for(PNEntity e : listePNEntity){
 			if(e instanceof Place){
 				listePlace.add((Place)e);
@@ -99,7 +99,7 @@ public class AncienComposant {
 	public HilecopComponentDesignFile getRoot(){
 		return designfile;
 	}
-	
+
 	/*  Fields  */
 	public EList<Port> getPorts(){
 		return designfile.getHilecopComponent().getPorts();
@@ -129,7 +129,7 @@ public class AncienComposant {
 	public EList<ComponentInstance> getInstances(){
 		return designfile.getHilecopComponent().getComponentBehaviour().getComponentsInstances(); 
 	}
-	
+
 	public ArrayList<Place> getPlaces(){		
 		return listePlace;
 	}
@@ -142,21 +142,32 @@ public class AncienComposant {
 	public EList<RefTransition> getRefTransitions(){
 		return designfile.getHilecopComponent().getRefTransitions();
 	}
-	
+
 	/*  PNElements  */
 	public EList<PNAction> getPNActions(){
-		return pn.getInterpretation().getActions();
+		if(pn.getInterpretation()!=null){
+			return pn.getInterpretation().getActions();}
+		return null;
 	}
 	public EList<PNFunction> getPNFunctions(){
-		return pn.getInterpretation().getFunctions();
+		if(pn.getInterpretation()!=null){
+			return pn.getInterpretation().getFunctions();
+		}
+		return null;
 	}
 	public EList<PNCondition> getPNConditions(){
-		return pn.getInterpretation().getConditions();
+		if(pn.getInterpretation()!=null){
+			return pn.getInterpretation().getConditions();
+		}
+		return null;
 	}	
 	public EList<PNTime> getPNTimes(){
-		return pn.getInterpretation().getTimes();
+		if(pn.getInterpretation()!=null){
+			return pn.getInterpretation().getTimes();
+		}
+		return null;
 	}
-	
+
 	/*  Arcs  */
 	public ArrayList<BasicArc> getBasicArcs(){
 		return listeBasicArc;
@@ -170,7 +181,7 @@ public class AncienComposant {
 	public ArrayList<FusionArc> getFusionArcs(){
 		return listeFusionArc;
 	}
-	
+
 	public EList<Connection> getConnections(){
 		return designfile.getHilecopComponent().getComponentBehaviour().getConnections();
 	}
