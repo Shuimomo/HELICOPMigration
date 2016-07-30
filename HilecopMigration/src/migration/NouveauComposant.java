@@ -13,9 +13,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.gmf.runtime.diagram.core.services.ViewService;
-import org.eclipse.gmf.runtime.notation.Diagram;
-
 import petriNet.PNEntity;
 import petriNet.Place;
 import petriNet.Transition;

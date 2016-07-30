@@ -11,8 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import root.HilecopRoot;
-
 public class MigrationDuProjet {
 	public static ArrayList<String> errors;
 	private String locate;
@@ -30,14 +28,15 @@ public class MigrationDuProjet {
 	 * la migration du projet(s)
 	 * @param liste_hilecopcomponent 
 	 * @param liste_vhd 
+	 * @param liste_behavior 
 	 * @throws IOException
 	 */
-	public void migrationHILECOP(ArrayList<File> liste_vhd, ArrayList<File> liste_hilecopcomponent) throws IOException{
+	public void migrationHILECOP(ArrayList<File> liste_vhd, ArrayList<File> liste_hilecopcomponent, ArrayList<File> liste_behavior) throws IOException{
 		/* creer an editor for each projet */
 		ArrayList<String> listeprojet = new ArrayList<String>();
 		Boolean exist = false;
-		for(int i=0;i<liste_hilecopcomponent.size();i++){
-			String projetname = liste_hilecopcomponent.get(i).getParentFile().getName();
+		for(File f : liste_hilecopcomponent){
+			String projetname = f.getParentFile().getName();
 			for(String e : listeprojet){
 				if(e.equals(projetname)){
 					exist = true;
@@ -47,30 +46,34 @@ public class MigrationDuProjet {
 				listeprojet.add(projetname);
 			}
 		}
-		for(int i=0;i<listeprojet.size();i++){
-			String nameofprojet = listeprojet.get(i);
+		for(String nameofprojet : listeprojet){
 			EditorInstanceContainer c = new EditorInstanceContainer(nameofprojet);
 			listeEIC.add(c);
 		}/*end*/
 
-		for(int i=0;i<liste_hilecopcomponent.size();i++){
-			/* migrer le composant(root) */
-			String projetname = liste_hilecopcomponent.get(i).getParentFile().getName();
+		for(File f : liste_hilecopcomponent){
+			
+			String projetname = f.getParentFile().getName();
 			String pathnew = locate + "\\"+projetname;
 			File f1=new File(pathnew);
 			f1.mkdir();
 			EditorInstanceContainer historyinstance = getEIC(projetname);
 			if(historyinstance!=null){
-				NouveauComposant newcomp = migrationComposant(pathnew, liste_hilecopcomponent.get(i),historyinstance);
-				gererdiagram(pathnew, newcomp.getName(),newcomp.getRoot());
+				/* migrer le composant(root) */
+				NouveauComposant newcomp = migrationComposant(pathnew, f ,historyinstance);
+				
+				/* migrer les diagrammes */
+				File f_behavior = getBehavior(newcomp.getName(),liste_behavior);
+				gererdiagram(pathnew, newcomp,f_behavior);
+				//TODO si besoin, ajouter fichier xmi f_instance
 			}
 		}
-		
+
 		/* gerer InstanceContainer pour tous */
 		for(EditorInstanceContainer e : listeEIC){
 			e.setallInstanceContainer(listecomp);
 		}
-		
+
 		/* migrer la fichier vhd */
 		for(int i=0;i<liste_vhd.size();i++){
 			String pathnew = locate + "\\"+liste_vhd.get(i).getParentFile().getName();
@@ -80,7 +83,7 @@ public class MigrationDuProjet {
 			String pathancien = liste_vhd.get(i).getAbsolutePath();
 			migrationVHD(pathancien, pathnew,name);
 		}
-		
+
 		System.out.println(errors);
 	}
 
@@ -115,16 +118,34 @@ public class MigrationDuProjet {
 	}
 
 	/**
-	 * migrate diagrams by calling GererDiagram
-	 * @param name
-	 * @param newRoot
+	 * find file .hilecopcomponentB_diagram for component given
+	 * @param compname
+	 * @param liste_behavior
+	 * @return
 	 */
-	private void gererdiagram(String path, String name, HilecopRoot newRoot){
-		GererDiagram newdiag = new GererDiagram(path, name, newRoot);
+	private File getBehavior(String compname, ArrayList<File> liste_behavior){
+		String subname = compname+".hilecopcomponentB_diagram";
+		//String mocname = "."+name+".hilecopcomponentB_diagram";
+		//TODO faut verifier
+		
+		for(File f : liste_behavior){
+			if(f.getName().contains(subname)){
+				return f;
+			}
+		}
+		return null;
+	}
+	/**
+	 * migrate diagrams by calling GererDiagram
+	 * @param newcomp
+	 * @param f_behavior
+	 */
+	private void gererdiagram(String path, NouveauComposant newcomp, File f_behavior){
+		DiagramTool newdiag = new DiagramTool(path, newcomp, f_behavior);
 		newdiag.createGMFDiagram();
 		newdiag.createGMFDiagramBehavior();		
 	}
-	
+
 	/**
 	 * migrate file vhd
 	 * @param path1

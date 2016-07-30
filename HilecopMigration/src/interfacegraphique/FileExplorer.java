@@ -17,12 +17,14 @@ public class FileExplorer{
 	private ArrayList<File> liste_fichiers;
 	private ArrayList<File> liste_hilecopcomponent;
 	private ArrayList<File> liste_vhd;
+	private ArrayList<File> liste_behavior;
 
 	public FileExplorer()
 	{
 		liste_fichiers = new ArrayList<File>();
 		liste_hilecopcomponent = new ArrayList<File>();
 		liste_vhd = new ArrayList<File>();
+		liste_behavior = new ArrayList<File>();
 	}
 
 	
@@ -60,6 +62,9 @@ public class FileExplorer{
 									if(Lfiles[k].getName().endsWith(".vhd") && !(Lfiles[k].getName().equals(".metadata") )){
 										liste_vhd.add(Lfiles[k]);
 									}
+									if(Lfiles[k].getName().endsWith(".hilecopcomponentB_diagram") && !(Lfiles[k].getName().equals(".metadata") )){
+										liste_behavior.add(Lfiles[k]);
+									}
 								}
 							}
 						}
@@ -77,6 +82,11 @@ public class FileExplorer{
 	public ArrayList<File> getVhd(){
 		return liste_vhd;
 	}
+	
+	public ArrayList<File> getBehavoir() {
+		return liste_behavior;
+	}
+	
 	public ArrayList<File> getListeFichiers(){
 		return liste_fichiers;
 	}

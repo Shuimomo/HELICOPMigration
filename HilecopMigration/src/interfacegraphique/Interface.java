@@ -257,8 +257,9 @@ public class Interface extends JFrame implements ActionListener {
 			 */
 			ArrayList<File> liste_vhd = f.getVhd();
 			ArrayList<File> liste_hilecopcomponent = f.getHilecopComponent();
+			ArrayList<File> liste_behavior = f.getBehavoir();
 			MigrationDuProjet migprojet = new MigrationDuProjet(locate);
-			migprojet.migrationHILECOP(liste_vhd,liste_hilecopcomponent);
+			migprojet.migrationHILECOP(liste_vhd,liste_hilecopcomponent,liste_behavior);
 			JOptionPane.showMessageDialog(null,"Migration is done!");
 			
 		Test test = new Test();
